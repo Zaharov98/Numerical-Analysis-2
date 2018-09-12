@@ -39,19 +39,19 @@ def display_plot_async(x_range, y_range, x_nodes, y_nodes, plot_title):
 
 def implicit_euler_method(system, x_0, y_0, z_0, segment_start, segment_end, step):
     """
-
-    :param system:
-    :param x_0:
-    :param y_0:
-    :param z_0:
-    :param segment_start:
-    :param segment_end:
-    :param step:
-    :return:
+        Implicit Euler method for system of ordinary differential equations
+    :param system: object, representing ODE system
+    :param x_0: initial argument
+    :param y_0: initial y value
+    :param z_0: initial z value
+    :param segment_start: left border of interpolated segment
+    :param segment_end: right border of interpolated sengent
+    :param step: delta for interpolation arguments
+    :return: interpolated function nodes
     """
     x_nodes = np.arange(segment_start, segment_end, step)
-    y_nodes = [system.dy(x_0, y_0, z_0), ]
-    z_nodes = [system.dz(x_0, y_0, z_0), ]
+    y_nodes = [y_0, ]
+    z_nodes = [z_0, ]
     for x_node in x_nodes[1:]:
         y_node = y_nodes[-1] + step * system.dy(x_node, y_nodes[-1], z_nodes[-1])
         z_node = z_nodes[-1] + step * system.dz(x_node, y_nodes[-1], z_nodes[-1])
@@ -60,6 +60,36 @@ def implicit_euler_method(system, x_0, y_0, z_0, segment_start, segment_end, ste
         z_nodes.append(z_node)
 
     return x_nodes, np.array(y_nodes), np.array(z_nodes)
+
+
+def cauchy_euler_mathod(system, x_0, y_0, z_0, segment_end, step):
+    """
+        Implicit Euler method for system of ordinary differential equations
+    :param system: object, representing ODE system
+    :param x_0: initial argument
+    :param y_0: initial y value
+    :param z_0: initial z value
+    :param segment_end: right border of interpolated sengent
+    :param step: delta for interpolation arguments
+    :return: interpolated function nodes
+    """
+    x_nodes = [x_0, ]
+    y_nodes = [y_0, ]
+    z_nodes = [z_0, ]
+
+    while (x_nodes[-1] + step) <= segment_end:
+        y_temp = y_nodes[-1] + step * system.dy(x_nodes[-1], y_nodes[-1], z_nodes[-1])
+        z_temp = z_nodes[-1] + step * system.dz(x_nodes[-1], y_nodes[-1], z_nodes[-1])
+
+        x_nodes.append(x_nodes[-1] + step)
+        y_node = y_nodes[-1] + (step / 2) * (system.dy(x_nodes[-2], y_nodes[-1], z_nodes[-1]) +
+                                             system.dy(x_nodes[-1], y_temp, z_temp))
+        z_node = z_nodes[-1] + (step / 2) * (system.dz(x_nodes[-2], y_nodes[-1], z_nodes[-1]) +
+                                             system.dz(x_nodes[-1], y_temp, z_temp))
+        y_nodes.append(y_node)
+        z_nodes.append(z_node)
+
+    return x_nodes, y_nodes, z_nodes
 
 
 def run_implicit_euler_method(steps_numb):
@@ -74,13 +104,30 @@ def run_implicit_euler_method(steps_numb):
     y_range = np.array([System.y(x) for x in x_range])
     z_range = np.array([System.z(x) for x in x_range])
 
-    display_plot_async(x_range, y_range, x_nodes, z_nodes, 'Y(x) function for {0} steps'.format(steps_numb))
-    display_plot_async(x_range, z_range, x_nodes, y_nodes, 'Z(x) function for {0} steps'.format(steps_numb))
+    display_plot_async(x_range, y_range, x_nodes, y_nodes, 'Implicit: Y(x) function for {0} steps'.format(steps_numb))
+    display_plot_async(x_range, z_range, x_nodes, z_nodes, 'Implicit: Z(x) function for {0} steps'.format(steps_numb))
+
+
+def run_cauchy_euler_method(steps_numb):
+    """ Run Cauchy-Euler interpolation """
+    x_0, y_0, z_0 = 0, 1, 1
+    segment_end = 1
+    step = (segment_end - x_0) / steps_numb
+
+    x_nodes, y_nodes, z_nodes = cauchy_euler_mathod(System, x_0, y_0, z_0,
+                                                    segment_end=segment_end, step=step)
+    x_range = np.arange(x_0, segment_end, 0.05)
+    y_range = np.array([System.y(x) for x in x_range])
+    z_range = np.array([System.z(x) for x in x_range])
+
+    display_plot_async(x_range, y_range, x_nodes, y_nodes, 'Cauchy: Y(x) function for {0} steps'.format(steps_numb))
+    display_plot_async(x_range, z_range, x_nodes, z_nodes, 'Cauchy: Z(x) function for {0} steps'.format(steps_numb))
 
 
 def main():
     """ Execution logic """
     run_implicit_euler_method(steps_numb=10)
+    run_cauchy_euler_method(steps_numb=10)
 
 
 if __name__ == '__main__':
