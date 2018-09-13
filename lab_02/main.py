@@ -48,7 +48,8 @@ def runge_kutta_interpolation_node(func, x_node, y_node, step, accuracy):
         accuracies.append(2 * func(x_node + step / 2, y_node + step * accuracies[-1]))
     accuracies.append(func(x_node + step, y_node + step * accuracies[-1]))
 
-    return y_node + (step / 6) * sum(accuracies)
+    delimer = {2: 2, 3: 4, 4: 6}
+    return y_node + (step / delimer[accuracy]) * sum(accuracies)
 
 
 def runge_kutta_interpolation(func, x_0, y_0, segment_end, step, accuracy):
