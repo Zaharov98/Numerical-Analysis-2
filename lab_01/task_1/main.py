@@ -8,6 +8,7 @@
 
 import math
 import numpy as np
+import tableprint as tp
 import matplotlib.pyplot as plt
 from multiprocessing import Process
 
@@ -20,6 +21,7 @@ def _display_plot(x_nodes, y_nodes, plot_title):
     :param plot_title: title of the plot
     """
     plt.plot(x_nodes, y_nodes, 'o', label='interpolated', linewidth=0.1)
+    plt.plot(x_nodes, [onhand_solution(x) for x in x_nodes], label='Solution')
     plt.title(plot_title)
 
     plt.ioff()              # disable window interactive mode
@@ -37,6 +39,11 @@ def given_function(x, y):
     """ Function u(x), given from the task
         dy(x)/dx = y / (x + 1) + exp(x)*(x + 1) """
     return y / (x + 1) + math.exp(x) * (x + 1)
+
+
+def onhand_solution(x):
+    """ Solution of given tasks made by the hands """
+    return math.exp(x) * (x + 1)
 
 
 def implicit_euler_interpolation(func, x_0, y_0, segment_start, segment_end, step):
@@ -89,6 +96,11 @@ def run_implicit_euler_method():
                                                     segment_start=x_0, segment_end=segment_end, step=step)
     display_plot_async(x_nodes, y_nodes, "Implicit Eulerian interpolation")
 
+    print('\nExplicit Euler method results')
+    print(tp.header(['X', 'Y', 'Interpolated', ]))
+    for x, y in zip(x_nodes, y_nodes):
+        print(tp.row([x, onhand_solution(x), y]))
+
 
 def run_cauchy_euler_method():
     """ Run Cauchy-Euler interpolation calculating """
@@ -99,6 +111,11 @@ def run_cauchy_euler_method():
     x_nodes, y_nodes = cauchy_euler_interpolation(given_function, x_0, y_0,
                                                   segment_start=x_0, segment_end=segment_end, step=step)
     display_plot_async(x_nodes, y_nodes, "Cauchy-Euler interpolation")
+
+    print('\nCauchy-Euler method results')
+    print(tp.header(['X', 'Y', 'Interpolated', ]))
+    for x, y in zip(x_nodes, y_nodes):
+        print(tp.row([x, onhand_solution(x), y]))
 
 
 def main():
