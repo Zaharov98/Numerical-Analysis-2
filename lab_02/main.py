@@ -7,6 +7,7 @@
 """
 
 import numpy as np
+import tableprint as tp
 import matplotlib.pyplot as plt
 from multiprocessing import Process
 
@@ -20,6 +21,8 @@ def _display_plot(x_nodes_list, y_nodes_list):
     """
     for x_nodes, y_nodes, order in zip(x_nodes_list, y_nodes_list, range(2, 5)):
         plt.plot(x_nodes, y_nodes, label='{0}'.format(order), linewidth=0.3)
+
+    plt.plot(x_nodes_list[-1], [explicit_solution(x) for x in x_nodes_list[-1]])
     plt.title("Runge-Kutta method")
 
     plt.ioff()              # disable window interactive mode
@@ -75,6 +78,11 @@ def given_function(x, y):
     return x**2 + 2 * x + y / (x + 2)
 
 
+def explicit_solution(x):
+    """ Explicit solution of the given task """
+    return 0.5 * (x**3 + 2 * x**2 + 1.51 * x + 3.02)
+
+
 def main():
     """ Execution logic """
     x_0, y_0 = 0.5, 2.2
@@ -88,6 +96,12 @@ def main():
         y_nodes_list.append(y_nodes)
 
     display_plot_async(x_nodes_list, y_nodes_list)
+
+    print('Runge-Kutta interpolation results')
+    print(tp.header(['X', 'Y', 'Y2', 'Y3', 'Y4']))
+    for x, y, y2, y3, y4 in zip(x_nodes_list[0], [explicit_solution(x) for x in x_nodes_list[0]],
+                                y_nodes_list[0], y_nodes_list[1], y_nodes_list[2]):
+        print(tp.row([x, y, y2, y3, y4, ]))
 
 
 if __name__ == '__main__':
