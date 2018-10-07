@@ -11,6 +11,8 @@ import tableprint as tp
 import matplotlib.pyplot as plt
 from multiprocessing import Process
 from scipy import interpolate, integrate
+import euler_pc as euler
+import adams_pc as adams
 
 
 def _display_plot(x_nodes_list, y_nodes_list):
@@ -34,8 +36,9 @@ def display_plot_async(x_nodes_list, y_nodes_list):
     process.start()
 
 
-def adams_prognosis_correction_method(func, x_0, y_0, segment_end, step, accuracy):
+def __adams_prognosis_correction_method(func, x_0, y_0, segment_end, step, accuracy):
     """
+        !DEPRECATED
         Adams predictor corrector method
     :param func: given function from the task
     :param x_0: initial argument
@@ -46,7 +49,7 @@ def adams_prognosis_correction_method(func, x_0, y_0, segment_end, step, accurac
     :return: x and y interpolation nodes
     """
     initial_segment_end = x_0 + step * accuracy
-    x_nodes, y_nodes = euler_predictor_corrector_method(func, x_0, y_0, initial_segment_end, step, accuracy=4)
+    x_nodes, y_nodes = euler.euler_predictor_corrector_method(func, x_0, y_0, initial_segment_end, step, accuracy=4)
 
     while x_nodes[-1] <= segment_end:
         lagrange_pol = interpolate.lagrange(x_nodes[-accuracy:], y_nodes[-accuracy:])
@@ -63,28 +66,9 @@ def adams_prognosis_correction_method(func, x_0, y_0, segment_end, step, accurac
     return x_nodes, y_nodes
 
 
-def euler_predictor_corrector_method(func, x_0, y_0, segment_end, step, accuracy):
-    """
-        Explicit Euler predictor corrector method
-    :param func: given function from the task
-    :param x_0: initial argument
-    :param y_0: initial value
-    :param segment_end: end of the interpolation segment
-    :param step: step for x nodes
-    :param accuracy: accuracy of the method
-    :return: x and y interpolation nodes
-    """
-    x_nodes = [x_0, ]
-    y_nodes = [y_0, ]
-    while x_nodes[-1] <= segment_end:
-        x_previous, y_previous = x_nodes[-1], y_nodes[-1]
-        y_node = y_nodes[-1] + step * func(x_previous, y_previous)
-        for attempt in range(1, accuracy + 1):
-            y_node = y_previous + (step / 2) * (func(x_previous, y_previous) + func(x_previous + step, y_node))
-        x_nodes.append(x_nodes[-1] + step)
-        y_nodes.append(y_node)
-
-    return x_nodes, y_nodes
+def adams_prognosis_corrector_method(func, x_0, y_0, segment_end, step, accuracy):
+    solving_strategy = adams.AdamsPrognosisCorrector()
+    return solving_strategy.solve(func, x_0, y_0, segment_end, step, accuracy)
 
 
 def given_function(x, y):
@@ -105,7 +89,7 @@ def main():
 
     x_nodes_list, y_nodes_list = [], []
     for accuracy in range(2, 5):
-        x_nodes, y_nodes = adams_prognosis_correction_method(given_function, x_0, y_0, segment_end, step, accuracy)
+        x_nodes, y_nodes = adams_prognosis_corrector_method(given_function, x_0, y_0, segment_end, step, accuracy)
 
         x_nodes_list.append(x_nodes)
         y_nodes_list.append(y_nodes)
@@ -115,7 +99,7 @@ def main():
     print('Adams predictor-corrector interpolation results')
     print(tp.header(['X', 'Y', 'Y2', 'Y3', 'Y4']))
     for x, y, y2, y3, y4 in zip(x_nodes_list[0], [explicit_solution(x) for x in x_nodes_list[0]],
-                                y_nodes_list[0], y_nodes_list[1], y_nodes_list[2]):
+                                y_nodes_list[2], y_nodes_list[1], y_nodes_list[0]):
         print(tp.row([x, y, y2, y3, y4, ]))
 
 
