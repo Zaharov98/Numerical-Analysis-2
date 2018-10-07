@@ -46,7 +46,7 @@ def onhand_solution(x):
     return math.exp(x) * (x + 1)
 
 
-def implicit_euler_interpolation(func, x_0, y_0, segment_start, segment_end, step):
+def explicit_euler_interpolation(func, x_0, y_0, segment_start, segment_end, step):
     """
         Implicit interpolation method for ordinary differential equation
     :param func: function derivative
@@ -86,15 +86,15 @@ def cauchy_euler_interpolation(func, x_0, y_0, segment_start, segment_end, step)
     return x_nodes, np.array(y_nodes)
 
 
-def run_implicit_euler_method():
+def run_explicit_euler_method():
     """ Run implicit euler interpolation calculating """
     step = 0.05
     x_0, y_0 = 0, 1
     segment_end = 1
 
-    x_nodes, y_nodes = implicit_euler_interpolation(given_function, x_0, y_0,
+    x_nodes, y_nodes = explicit_euler_interpolation(given_function, x_0, y_0,
                                                     segment_start=x_0, segment_end=segment_end, step=step)
-    display_plot_async(x_nodes, y_nodes, "Implicit Eulerian interpolation")
+    display_plot_async(x_nodes, y_nodes, "Explicit Eulerian interpolation")
 
     print('\nExplicit Euler method results')
     print(tp.header(['X', 'Y', 'Interpolated', ]))
@@ -120,7 +120,7 @@ def run_cauchy_euler_method():
 
 def main():
     """ Execution logic """
-    run_implicit_euler_method()
+    run_explicit_euler_method()
     run_cauchy_euler_method()
 
 

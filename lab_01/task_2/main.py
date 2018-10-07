@@ -37,7 +37,7 @@ def display_plot_async(x_range, y_range, x_nodes, y_nodes, plot_title):
     process.start()
 
 
-def implicit_euler_method(system, x_0, y_0, z_0, segment_start, segment_end, step):
+def explicit_euler_method(system, x_0, y_0, z_0, segment_start, segment_end, step):
     """
         Implicit Euler method for system of ordinary differential equations
     :param system: object, representing ODE system
@@ -92,20 +92,20 @@ def cauchy_euler_mathod(system, x_0, y_0, z_0, segment_end, step):
     return x_nodes, y_nodes, z_nodes
 
 
-def run_implicit_euler_method(steps_numb):
+def run_explicit_euler_method(steps_numb):
     """ Run implicit Eulerian interpolation """
     x_0, y_0, z_0 = 0, 1, 1
     segment_end = 1
     step = (segment_end - x_0) / steps_numb
 
-    x_nodes, y_nodes, z_nodes = implicit_euler_method(System, x_0, y_0, z_0,
+    x_nodes, y_nodes, z_nodes = explicit_euler_method(System, x_0, y_0, z_0,
                                                       segment_start=x_0, segment_end=segment_end, step=step)
     x_range = np.arange(x_0, segment_end, 0.05)
     y_range = np.array([System.y(x) for x in x_range])
     z_range = np.array([System.z(x) for x in x_range])
 
-    display_plot_async(x_range, y_range, x_nodes, y_nodes, 'Implicit: Y(x) function for {0} steps'.format(steps_numb))
-    display_plot_async(x_range, z_range, x_nodes, z_nodes, 'Implicit: Z(x) function for {0} steps'.format(steps_numb))
+    display_plot_async(x_range, y_range, x_nodes, y_nodes, 'Explicit: Y(x) function for {0} steps'.format(steps_numb))
+    display_plot_async(x_range, z_range, x_nodes, z_nodes, 'Explicit: Z(x) function for {0} steps'.format(steps_numb))
 
 
 def run_cauchy_euler_method(steps_numb):
@@ -126,7 +126,7 @@ def run_cauchy_euler_method(steps_numb):
 
 def main():
     """ Execution logic """
-    run_implicit_euler_method(steps_numb=10)
+    run_explicit_euler_method(steps_numb=10)
     run_cauchy_euler_method(steps_numb=10)
 
 
