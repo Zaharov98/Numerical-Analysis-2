@@ -99,7 +99,7 @@ def main():
     print('Adams predictor-corrector interpolation results')
     print(tp.header(['X', 'Y', 'Y2', 'Y3', 'Y4']))
     for x, y, y2, y3, y4 in zip(x_nodes_list[0], [explicit_solution(x) for x in x_nodes_list[0]],
-                                y_nodes_list[2], y_nodes_list[1], y_nodes_list[0]):
+                                y_nodes_list[0], y_nodes_list[1], y_nodes_list[2]):
         print(tp.row([x, y, y2, y3, y4, ]))
 
 
