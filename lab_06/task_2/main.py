@@ -3,34 +3,22 @@
     Laboratory work number 6
     Variant 6, Zaharov Igor
 
-    Fredholm integral equation
-    second kind and simpson quadrature formula
+    Volterra integral equation
+    by trapezium quadrature formula
 """
 
 import math
 import numpy as np
 import matplotlib.pyplot as plt
 from multiprocessing import Process
-import simpson
 
 
-def k(t, s):
-    return (math.sqrt(s) - 1) / s - t**2
+def q(t, s):
+    return t + 2 * math.log(1 + s)
 
 
 def f(t):
-    return 1 - t**2 / (t + 1)
-
-
-def get_system_matrix(a, x):
-    rows = []
-    for i in range(0, len(x)):
-        row = []
-        for j in range(0, len(x)):
-            row.append(- a[j] * k(x[i], x[j]) if i != j else 1 - a[j] * k(x[i], x[j]))
-        rows.append(row)
-
-    return np.array(rows)
+    return 3 * t - math.sqrt(t) - 1
 
 
 def _display_plot(x_nodes, y_nodes, plot_title):
@@ -54,20 +42,34 @@ def display_plot_async(x_nodes, y_nodes, plot_title):
     process.start()
 
 
+def get_quadrature_weights(h, n):
+    weights = [h / 2, ] + [h, ] * (n - 1)
+    weights.append(h / 2)
+
+    return np.array(weights)
+
+
+def get_nodes(x, w, h):
+    nodes = []
+    for i in range(0, len(x)):
+        node = 1 / (1 - (h / 2) * q(x[i], x[i])) * (f(x[i]) + h / 2 * q(x[i], x[1]) * f(x[1]) +
+                                                    h * sum([q(x[i], x[j]) * f(x[j]) for j in range(0, i)]))
+        nodes.append(node)
+
+    return nodes
+
+
 def main():
-    a, b = 2, 5
-    h = 0.2
+    a, b = 2, 4
+    h = 0.1
 
     n = int((b - a) / h)
-    m = int(n / 2)
 
     x = np.arange(a, b, h)
-    a = simpson.get_coefficients(h, n)
-    matrix = get_system_matrix(a, x)
-    solution_row = f(x)
+    w = get_quadrature_weights(h, n)
+    y = get_nodes(x, w, h)
 
-    y = np.linalg.solve(matrix, solution_row)
-    display_plot_async(x, y, "Fredholm integral")
+    display_plot_async(x, y, 'Volterra integral equation')
 
 
 if __name__ == '__main__':
