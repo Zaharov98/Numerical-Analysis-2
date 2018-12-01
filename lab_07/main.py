@@ -21,12 +21,12 @@ def q(x, t):
 def main():
     compact = 0, 1
     h = 0.01
-    x = np.arange(compact[0], compact[1], h)
+    x = np.arange(compact[0], compact[1] + h, h)
 
-    et = h**2 / 2
-    t = np.arange(compact[0], compact[1], et)
+    et = 0.01  # h**2 / 2
+    t = np.arange(compact[0], compact[1] + h, et)
 
-    table = schema_table.get_schema_table(x, t, h, et)
+    table = schema_table.get_schema_table(x, t)
     plotting.display_plot(x, t, table)
 
 
